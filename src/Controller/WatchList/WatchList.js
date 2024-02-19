@@ -5,6 +5,7 @@ const createWatchList = async (req, res) => {
 
     try {
         const watchList = new watchListModel({
+            moviId:req.body._id,
             movieName: req.body.movieName,
             releaseYear: req.body.releaseYear,
             actorName: req.body.actorName,
@@ -12,7 +13,8 @@ const createWatchList = async (req, res) => {
             desc: req.body.desc,
             releaseYear: req.body.releaseYear,
             moviePic: req.body.moviePic,
-            public_id: req.body.public_id
+            public_id: req.body.public_id,
+            rating:req.body.rating??0
         })
         await watchList.save()
         res.status(200).send({ message: 'updated succesfully' })

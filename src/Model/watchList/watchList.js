@@ -2,6 +2,7 @@ import mongoose from "../index.js";
 
 
 const scheme = new mongoose.Schema({
+    moviId:{type:String},
     movieName: { type: String },
     releaseYear: { type: String },
     plot: { type: String },
