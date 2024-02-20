@@ -22,4 +22,5 @@ route.post('/createwatchlist', WatchList.createWatchList)
 route.get('/getwatchlist', WatchList.getWatchList)
 route.delete('/removewatchlist/:id', WatchList.deleteWarchList)
 route.get('/getwatchupdatelist/:id', Movie.getUpdateList);
+route.get('/getactors',Movie.getActorProducer)
 export default route

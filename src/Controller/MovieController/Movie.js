@@ -156,4 +156,13 @@ const getUpdateList = async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 }
-export default { creatmovieList, getAllMovieList, deleteMovie, updateMovie, getUpdateList }
+const getActorProducer=async(req,res)=>{
+    try {
+        let actorList=(await actorModel.find({},{ _id: 0 ,actorname:1})).map((e)=>e.actorname)
+        let producerList=await (await producerModel.find({},{ _id: 0 ,producername:1})).map((e)=>e.producername)
+        res.status(200).send({message:'fetched sucessfully',actorList,producerList})
+    } catch (error) {
+        res.status(500).send({message:error.message})
+    }
+}
+export default { creatmovieList, getAllMovieList,getActorProducer, deleteMovie, updateMovie, getUpdateList }
