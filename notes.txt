@@ -1,6 +1,5 @@
 import movieModel from "../../Model/Movie/Movie.js";
 import actorModel from "../../Model/Actor/Actor.js"
-import producerModel from "../../Model/producer/Producer.js"
 import cloudnary from 'cloudinary'
 import watchListModel from "../../Model/watchList/watchList.js";
 
@@ -12,56 +11,34 @@ const creatmovieList = async (req, res) => {
             api_secret: "SaArGafJGobXIJzjmYNoAKwaEY8"
         })
 
-        let actorRes = await actorModel.findOne({ actorname: req.body.actorname });
-        if (!actorRes) {
-            const actorData = new actorModel({
-                actorname: req.body.actorname,
-                movieList: [req.body.moviename],
-                bio: req.body.actorBio
+        await actorModel.findOne({});
+        const actorData = new actorModel({
+            actorname: req.body.actorname,
+            movieList: []
+        })
+        let actRes = await actorData.save()
+        console.log(actRes.id);
+
+        // console.log(actorModel.actorname);
+        // console.log(actRes);
+
+        if (req.file) {
+            const result = await cloudnary.v2.uploader.upload(req.file.path)
+            const movielist = new movieModel({
+                movieName: req.body.moviename,
+                releaseYear: req.body.releaseYear,
+                actorNameId: actRes.id,
+                producerName: req.body.producerName,
+                desc: req.body.desc,
+                releaseYear: req.body.releaseYear,
+                rating: req.body.rating,
+                moviePic: result.url,
+                public_id: result.public_id
             })
-            await actorData.save()
-        } else {
-            let allprevdata = actorRes.movieList ? [...actorRes.movieList, req.body.moviename] : req.body.moviename
-            actorRes.movieList = allprevdata;
-            await actorRes.save()
+            await movielist.save()
+            res.status(200).send({ message: 'updated succesfully' })
         }
 
-        let producerRes = await producerModel.findOne({ producername: req.body.producerName });
-        if (!producerRes) {
-            const producerData = new producerModel({
-                producername: req.body.producerName,
-                bio: req.body.producerBio,
-                movieList: [req.body.moviename]
-            })
-            await producerData.save()
-        } else {
-            let allpreProducerMovie = producerRes.movieList ? [...producerRes.movieList, req.body.moviename] : req.body.moviename;
-            producerRes.movieList = allpreProducerMovie;
-            await producerRes.save()
-        }
-        let moveieRes = await movieModel.findOne({ movieName: req.body.moviename })
-        if (!moveieRes) {
-
-
-            if (req.file) {
-                const result = await cloudnary.v2.uploader.upload(req.file.path)
-                const movielist = new movieModel({
-                    movieName: req.body.moviename,
-                    releaseYear: req.body.releaseYear,
-                    actorName: req.body.actorname,
-                    producerName: req.body.producerName,
-                    desc: req.body.desc,
-                    releaseYear: req.body.releaseYear,
-                    rating: req.body.rating,
-                    moviePic: result.url,
-                    public_id: result.public_id
-                })
-                await movielist.save()
-                res.status(200).send({ message: 'updated succesfully' })
-            }
-        } else {
-            res.status(400).send({ message: 'movie already exist' })
-        }
     } catch (error) {
         res.status(500).send({ message: error.message })
     }
@@ -70,7 +47,42 @@ const creatmovieList = async (req, res) => {
 const getAllMovieList = async (req, res) => {
     try {
         let DbrRes = await movieModel.find();
-        res.status(200).send({ message: "data fetced successfully", data: DbrRes })
+        let actorrRes = await actorModel.find();
+        const resData = []
+        actorrRes.forEach((k) => {
+            DbrRes.forEach((e) => {
+
+                if (k._id == e.actorNameId) {
+                    const obj = {
+                        _id: e._id,
+                        movieName: e.movieName,
+                        actorNameId: k._id,
+                        actorName: k.actorname,
+                        releaseYear: e.releaseYear,
+                        desc: e.desc,
+                        producerName: e.producerName,
+                        rating: e.rating,
+                        moviePic: e.moviePic,
+                        public_id: e.public_id
+                        // 
+                    }
+                    resData.push(obj)
+                }
+            })
+        })
+        console.log(resData);
+        // {
+        //     "_id": "65d44ed5f845c3f56cc4cf07",
+        //     "movieName": "dfsdssd",
+        //     "releaseYear": "2024-02-14",
+        //     "desc": "lal salam opens the religious mind",
+        //     "actorNameId": "65d44ed1f845c3f56cc4cf02",
+        //     "producerName": "ewes",
+        //     "rating": 2,
+        //     "moviePic": "http://res.cloudinary.com/dfjc0pkpp/image/upload/v1708412628/hlkevgho05l2ljpaqnfp.png",
+        //     "public_id": "hlkevgho05l2ljpaqnfp"
+        // }
+        res.status(200).send({ message: "data fetced successfully", data: resData })
     } catch (error) {
         res.status(500).send({ error: error.message })
 
@@ -118,8 +130,9 @@ const updateMovie = async (req, res) => {
                 watchListRes.desc = req.body.desc ?? dbRes.desc
                 watchListRes.moviePic = result.url ?? dbRes.moviePic
                 watchListRes.public_id = result.public_id ?? dbRes.public_id
-                await watchListRes.save()
             }
+            await watchListRes.save()
+
             await dbRes.save()
 
             res.status(200).send({ message: 'updated succesfully' })
@@ -137,9 +150,9 @@ const updateMovie = async (req, res) => {
                 watchListRes.producerName = req.body.producerName ?? dbRes.producerName
                 watchListRes.rating = req.body.rating ?? dbRes.rating
                 watchListRes.desc = req.body.desc ?? dbRes.desc
-                await watchListRes.save()
             }
 
+            await watchListRes.save()
             await dbRes.save()
             res.status(200).send({ message: 'updated succesfully' })
         }
