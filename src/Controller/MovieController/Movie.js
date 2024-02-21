@@ -12,6 +12,33 @@ const creatmovieList = async (req, res) => {
             api_secret: "SaArGafJGobXIJzjmYNoAKwaEY8"
         })
 
+
+        let moveieRes = await movieModel.findOne({ movieName: req.body.moviename })
+        if (!moveieRes) {
+
+
+            if (req.file) {
+                const result = await cloudnary.v2.uploader.upload(req.file.path)
+                const movielist = new movieModel({
+                    movieName: req.body.moviename,
+                    releaseYear: req.body.releaseYear,
+                    actorName: req.body.actorname,
+                    producerName: req.body.producerName,
+                    desc: req.body.desc,
+                    releaseYear: req.body.releaseYear,
+                    rating: req.body.rating,
+                    moviePic: result.url,
+                    public_id: result.public_id
+                })
+                await movielist.save()
+                res.status(200).send({ message: 'updated succesfully' })
+            }
+        }
+        else {
+            res.status(400).send({ message: 'movie already exist' })
+        }
+
+
         let actorRes = await actorModel.findOne({ actorname: req.body.actorname });
         if (!actorRes) {
             const actorData = new actorModel({
@@ -39,29 +66,6 @@ const creatmovieList = async (req, res) => {
             producerRes.movieList = allpreProducerMovie;
             await producerRes.save()
         }
-        let moveieRes = await movieModel.findOne({ movieName: req.body.moviename })
-        if (!moveieRes) {
-
-
-            if (req.file) {
-                const result = await cloudnary.v2.uploader.upload(req.file.path)
-                const movielist = new movieModel({
-                    movieName: req.body.moviename,
-                    releaseYear: req.body.releaseYear,
-                    actorName: req.body.actorname,
-                    producerName: req.body.producerName,
-                    desc: req.body.desc,
-                    releaseYear: req.body.releaseYear,
-                    rating: req.body.rating,
-                    moviePic: result.url,
-                    public_id: result.public_id
-                })
-                await movielist.save()
-                res.status(200).send({ message: 'updated succesfully' })
-            }
-        } else {
-            res.status(400).send({ message: 'movie already exist' })
-        }
     } catch (error) {
         res.status(500).send({ message: error.message })
     }
@@ -70,6 +74,7 @@ const creatmovieList = async (req, res) => {
 const getAllMovieList = async (req, res) => {
     try {
         let DbrRes = await movieModel.find();
+        console.log(DbrRes);
         res.status(200).send({ message: "data fetced successfully", data: DbrRes })
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -79,10 +84,10 @@ const getAllMovieList = async (req, res) => {
 
 const deleteMovie = async (req, res) => {
     try {
-        let dbRes = await movieModel.deleteOne({ _id: req.params.id });
-        let watchListDel = await watchListModel.deleteOne({ moviId: req.params.id });
-        console.log(dbRes);
-        console.log(watchListDel);
+        await movieModel.deleteOne({ _id: req.params.id });
+        await watchListModel.deleteOne({ moviId: req.params.id });
+        // console.log(dbRes);
+        // console.log(watchListDel);
         res.status(200).send({ message: 'deleted sucessfully' });
     } catch (error) {
 
@@ -92,7 +97,7 @@ const updateMovie = async (req, res) => {
     try {
         let dbRes = await movieModel.findOne({ _id: req.body.id })
         let watchListRes = await watchListModel.findOne({ moviId: req.body.id })
-        console.log(watchListRes);
+        // console.log(watchListRes);
         cloudnary.config({
             cloud_name: "dfjc0pkpp",
             api_key: "588969669952431",
@@ -156,13 +161,13 @@ const getUpdateList = async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 }
-const getActorProducer=async(req,res)=>{
+const getActorProducer = async (req, res) => {
     try {
-        let actorList=(await actorModel.find({},{ _id: 0 ,actorname:1})).map((e)=>e.actorname)
-        let producerList=await (await producerModel.find({},{ _id: 0 ,producername:1})).map((e)=>e.producername)
-        res.status(200).send({message:'fetched sucessfully',actorList,producerList})
+        let actorList = (await actorModel.find({}, { _id: 0, actorname: 1 })).map((e) => e.actorname)
+        let producerList = await (await producerModel.find({}, { _id: 0, producername: 1 })).map((e) => e.producername)
+        res.status(200).send({ message: 'fetched sucessfully', actorList, producerList })
     } catch (error) {
-        res.status(500).send({message:error.message})
+        res.status(500).send({ message: error.message })
     }
 }
-export default { creatmovieList, getAllMovieList,getActorProducer, deleteMovie, updateMovie, getUpdateList }
+export default { creatmovieList, getAllMovieList, getActorProducer, deleteMovie, updateMovie, getUpdateList }
