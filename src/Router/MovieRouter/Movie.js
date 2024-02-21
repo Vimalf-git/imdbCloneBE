@@ -18,7 +18,7 @@ route.get('/getmovielist',Auth.validate, Movie.getAllMovieList)
 route.delete('/deletemovie/:id',Auth.validate, Movie.deleteMovie)
 route.put('/updatemovie',Auth.validate, upload.single('file'), Movie.updateMovie);
 route.post('/createwatchlist',Auth.validate, WatchList.createWatchList)
-route.get('/getwatchlist',Auth.validate, WatchList.getWatchList)
+route.get('/getwatchlist/:mail',Auth.validate, WatchList.getWatchList)
 route.delete('/removewatchlist/:id', WatchList.deleteWarchList)
 route.get('/getwatchupdatelist/:id',Auth.validate, Movie.getUpdateList);
 route.get('/getactors',Auth.validate,Movie.getActorProducer)

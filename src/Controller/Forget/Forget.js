@@ -38,14 +38,12 @@ const forgetPassword = async (req, res) => {
         }
     } catch (error) {
         res.status(500).send({ message: 'Internal server error', error: error.message })
-        console.log(error.message);
     }
 }
 const getForgetres = async (req, res) => {
 
     try {
         const data = await userModel.findOne({ token:req.params.token})
-        console.log(data);
         if (data) {
             res.status(200).send({
                 message: 'successfully validated',

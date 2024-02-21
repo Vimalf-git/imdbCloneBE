@@ -2,6 +2,7 @@ import mongoose from "../index.js";
 
 
 const scheme = new mongoose.Schema({
+    email:{type:String,require:[true,'mention your maile']},
     moviId:{type:String},
     movieName: { type: String },
     releaseYear: { type: String },

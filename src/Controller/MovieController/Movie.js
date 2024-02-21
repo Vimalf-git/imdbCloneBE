@@ -20,6 +20,7 @@ const creatmovieList = async (req, res) => {
             if (req.file) {
                 const result = await cloudnary.v2.uploader.upload(req.file.path)
                 const movielist = new movieModel({
+                    email:req.body.email,
                     movieName: req.body.moviename,
                     releaseYear: req.body.releaseYear,
                     actorName: req.body.actorname,
@@ -74,7 +75,6 @@ const creatmovieList = async (req, res) => {
 const getAllMovieList = async (req, res) => {
     try {
         let DbrRes = await movieModel.find();
-        console.log(DbrRes);
         res.status(200).send({ message: "data fetced successfully", data: DbrRes })
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -86,8 +86,6 @@ const deleteMovie = async (req, res) => {
     try {
         await movieModel.deleteOne({ _id: req.params.id });
         await watchListModel.deleteOne({ moviId: req.params.id });
-        // console.log(dbRes);
-        // console.log(watchListDel);
         res.status(200).send({ message: 'deleted sucessfully' });
     } catch (error) {
 
@@ -97,7 +95,6 @@ const updateMovie = async (req, res) => {
     try {
         let dbRes = await movieModel.findOne({ _id: req.body.id })
         let watchListRes = await watchListModel.findOne({ moviId: req.body.id })
-        // console.log(watchListRes);
         cloudnary.config({
             cloud_name: "dfjc0pkpp",
             api_key: "588969669952431",

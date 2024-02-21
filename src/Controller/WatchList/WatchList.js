@@ -5,6 +5,7 @@ const createWatchList = async (req, res) => {
 
     try {
         const watchList = new watchListModel({
+            email:req.body.email,
             moviId:req.body._id,
             movieName: req.body.movieName,
             releaseYear: req.body.releaseYear,
@@ -26,7 +27,7 @@ const createWatchList = async (req, res) => {
 
 const getWatchList = async (req, res) => {
     try {
-        let dbRes = await watchListModel.find();
+        let dbRes = await watchListModel.find({email:req.params.mail});
         if (dbRes)
             res.status(200).send({ message: 'fetched sucessfully', data: dbRes })
         else
